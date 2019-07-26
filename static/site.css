@@ -1,0 +1,80 @@
+#header img, #title {
+  float: left;
+}
+
+#title h1 {
+  font-size: 150%;
+}
+
+#title h1 a {
+  color: black;
+  text-decoration: none;
+}
+
+#title h2 {
+  font-size: 80%;
+}
+
+#body {
+  clear: both;
+  border-top: 2px solid #d70751;
+  padding: 1em 1em;
+}
+
+#footer {
+  clear: both;
+  border-top: 2px solid #d70751;
+  padding: 1em 0em;
+}
+
+#body table {
+  text-align: center;
+}
+
+tr>.version {
+  background: #eeeeee;
+}
+
+tr>.good {
+  background: LightGreen;
+}
+
+tr>.partial {
+  background: #ffcc66;
+}
+
+tr>.bad {
+  background: Salmon;
+}
+
+tr>.unknown {
+  background: Cornsilk;
+}
+
+#good~table>tbody>.good {
+  display: none;
+}
+
+#good:checked~table>tbody>.good {
+  display: table-row;
+}
+
+#partial~table>tbody>.partial{
+  display: none;
+}
+
+#partial:checked~table>tbody>.partial{
+  display: table-row;
+}
+
+#bad~table>tbody>.bad{
+  display: none;
+}
+
+#bad:checked~table>tbody>.bad{
+  display: table-row;
+}
+
+/*
+ * vim:ai:et:sta:ts=2:sts=2:sw=2
+ * /

@@ -1,0 +1,6 @@
+[submodule "third_party/debian"]
+	path = third_party/debian
+	url = https://salsa.debian.org/python-debian-team/python-debian.git
+[submodule "third_party/mako"]
+	path = third_party/mako
+	url = https://github.com/sqlalchemy/mako
