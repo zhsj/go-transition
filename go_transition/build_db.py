@@ -1,4 +1,8 @@
 from debian import deb822
+from mako.template import Template
+from os.path import abspath, join, dirname
+from go_transition import config
+import subprocess
 
 
 class BuiltUsing(deb822.Packages):
@@ -78,12 +82,80 @@ def walk_bin_packages(fn, suite, arch, c):
     cur.close()
 
 
-def build_db(conn, mirror):
+def download():
+    with open(
+        abspath(
+            join(
+                dirname(__file__),
+                "..",
+                "apt",
+                "etc",
+                "apt",
+                "sources.list.d",
+                "testing.sources",
+            )
+        ),
+        "w",
+    ) as f:
+        f.write(
+            Template(
+                filename=abspath(
+                    join(
+                        dirname(__file__),
+                        "testing.sources.tmpl",
+                    )
+                )
+            ).render(mirror=config.mirror, archs=config.archs)
+        )
+    subprocess.run(
+        [
+            "apt",
+            "-o",
+            "Dir=" + abspath(join(dirname(__file__), "..", "apt")),
+            "-o" "Dir::Etc::trustedparts=/etc/apt/trusted.gpg.d/",
+            "update",
+        ],
+        check=True,
+    )
+
+
+def build_db(conn):
     create_table(conn)
-    s = "/var/lib/apt/lists/%s_debian_dists_testing_main_source_Sources" % mirror
-    walk_src_packages(s, "testing", conn)
-    s = "/var/lib/apt/lists/%s_debian_dists_testing_main_binary-amd64_Packages" % mirror
-    walk_bin_packages(s, "testing", "amd64", conn)
+    sources = "%s_debian_dists_testing_main_source_Sources" % config.mirror
+    walk_src_packages(
+        abspath(
+            join(dirname(__file__), "..", "apt", "var", "lib", "apt", "lists", sources)
+        ),
+        "testing",
+        conn,
+    )
+    for arch in config.archs:
+        packages = "%s_debian_dists_testing_main_binary-%s_Packages" % (
+            config.mirror,
+            arch,
+        )
+        walk_bin_packages(
+            abspath(
+                join(
+                    dirname(__file__),
+                    "..",
+                    "apt",
+                    "var",
+                    "lib",
+                    "apt",
+                    "lists",
+                    packages,
+                )
+            ),
+            "testing",
+            arch,
+            conn,
+        )
+
+
+def main(conn):
+    download()
+    build_db(conn)
 
 
 if __name__ == "__main__":
@@ -91,8 +163,6 @@ if __name__ == "__main__":
     import sys
 
     db = "/tmp/go-transition.db"
-    mirror = "mirrors.tuna.tsinghua.edu.cn"
-    if len(sys.argv) == 3:
+    if len(sys.argv) == 2:
         path = sys.argv[1]
-        mirror = sys.argv[2]
-    build_db(sqlite3.connect(db), mirror)
+    main(sqlite3.connect(db))

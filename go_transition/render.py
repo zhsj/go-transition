@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from mako.template import Template
 from os.path import abspath, join, dirname
+from go_transition import config
 import itertools
 import time
 
@@ -51,21 +52,10 @@ def get_pkgs(conn, suite):
     return pkgs
 
 
-def render(conn):
+def main(conn):
     args = {
         "date": time.strftime("%a, %d %b %Y %H:%M:%S %z", time.localtime()),
-        "archs": [
-            "amd64",
-            # "arm64",
-            # "armel",
-            # "armhf",
-            # "i386",
-            # "mips",
-            # "mips64el",
-            # "mipsel",
-            # "ppc64el",
-            # "s390x",
-        ],
+        "archs": config.archs,
         "pkgs": get_pkgs(conn, "testing"),
     }
     index = Template(
@@ -82,4 +72,4 @@ if __name__ == "__main__":
     db = "/tmp/go-transition.db"
     if len(sys.argv) == 2:
         db = sys.argv[1]
-    render(sqlite3.connect(db))
+    main(sqlite3.connect(db))

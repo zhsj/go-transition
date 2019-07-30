@@ -1,0 +1,14 @@
+archs = [
+    "amd64",
+    "arm64",
+    "armel",
+    "armhf",
+    "i386",
+    "mips",
+    "mips64el",
+    "mipsel",
+    "ppc64el",
+    "s390x",
+]
+
+mirror = "mirrors.tuna.tsinghua.edu.cn"

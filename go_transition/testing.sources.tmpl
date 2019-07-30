@@ -1,0 +1,10 @@
+Types: deb deb-src
+URIs: https://${mirror}/debian
+Suites: testing
+Components: main
+Languages:
+Targets: Packages Sources
+Architectures:\
+% for arch in archs:
+ ${arch}\
+% endfor
