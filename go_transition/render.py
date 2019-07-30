@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from mako.template import Template
 from os.path import abspath, join, dirname
 from go_transition import config
@@ -6,19 +5,26 @@ import itertools
 import time
 
 
-@dataclass
 class Src:
-    name: str
-    version: str
+    name = ""
+    version = ""
+
+    def __init__(self, name, version):
+        self.name = name
+        self.version = version
 
 
-@dataclass
 class Bin:
-    name: str
-    version: str
-    using: dict
+    name = ""
+    version = ""
+    using = {}
 
-    def status(self, version: str) -> str:
+    def __init__(self, name, version, using):
+        self.name = name
+        self.version = version
+        self.using = using
+
+    def status(self, version):
         if all(i == version for i in self.using.values()):
             return "good"
         return "bad"
