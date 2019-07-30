@@ -41,7 +41,9 @@ def walk_src_packages(fn, suite, c):
     cur = c.cursor()
     with open(fn) as f:
         for pkg in deb822.Sources.iter_paragraphs(f):
-            if not ("Build-Depends" in pkg and "dh-golang" in pkg["Build-Depends"]):
+            if not (
+                "Build-Depends" in pkg and "dh-golang" in pkg["Build-Depends"]
+            ) and not (pkg["Package"].startswith("golang-1.")):
                 continue
             if pkg.get("Extra-Source-Only") == "yes":
                 continue
@@ -52,6 +54,14 @@ def walk_src_packages(fn, suite, c):
             """,
                 row,
             )
+        # dummy golang
+        rows = [("golang-1." + str(i), suite, "Bad") for i in range(6, 11)]
+        cur.executemany(
+            """
+            INSERT INTO src (src_pkg, suite, version) VALUES (?,?,?)
+            """,
+            rows,
+        )
     c.commit()
     cur.close()
 
