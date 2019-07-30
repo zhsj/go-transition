@@ -4,3 +4,6 @@
 [submodule "third_party/mako"]
 	path = third_party/mako
 	url = https://github.com/sqlalchemy/mako
+[submodule "third_party/chardet"]
+	path = third_party/chardet
+	url = https://github.com/chardet/chardet
