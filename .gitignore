@@ -3,3 +3,4 @@ static/*.html
 apt/var/lib/apt/lists/
 apt/etc/apt/sources.list.d/*.sources
 third_party/python-apt
+go_transition/config.py
