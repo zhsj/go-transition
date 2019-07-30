@@ -12,3 +12,4 @@ archs = [
 ]
 
 mirror = "mirrors.tuna.tsinghua.edu.cn"
+suite = "testing"

@@ -92,20 +92,15 @@ def download():
                 "etc",
                 "apt",
                 "sources.list.d",
-                "testing.sources",
+                "sources.sources",
             )
         ),
         "w",
     ) as f:
         f.write(
-            Template(
-                filename=abspath(
-                    join(
-                        dirname(__file__),
-                        "testing.sources.tmpl",
-                    )
-                )
-            ).render(mirror=config.mirror, archs=config.archs)
+            Template(filename=abspath(join(dirname(__file__), "sources.tmpl"))).render(
+                mirror=config.mirror, archs=config.archs, suite=config.suite
+            )
         )
     subprocess.run(
         [
@@ -121,17 +116,18 @@ def download():
 
 def build_db(conn):
     create_table(conn)
-    sources = "%s_debian_dists_testing_main_source_Sources" % config.mirror
+    sources = "%s_debian_dists_%s_main_source_Sources" % (config.mirror, config.suite)
     walk_src_packages(
         abspath(
             join(dirname(__file__), "..", "apt", "var", "lib", "apt", "lists", sources)
         ),
-        "testing",
+        config.suite,
         conn,
     )
     for arch in config.archs:
-        packages = "%s_debian_dists_testing_main_binary-%s_Packages" % (
+        packages = "%s_debian_dists_%s_main_binary-%s_Packages" % (
             config.mirror,
+            config.suite,
             arch,
         )
         walk_bin_packages(
@@ -147,7 +143,7 @@ def build_db(conn):
                     packages,
                 )
             ),
-            "testing",
+            config.suite,
             arch,
             conn,
         )

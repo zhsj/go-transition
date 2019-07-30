@@ -62,7 +62,7 @@ def main(conn):
     args = {
         "date": time.strftime("%a, %d %b %Y %H:%M:%S %z", time.localtime()),
         "archs": config.archs,
-        "pkgs": get_pkgs(conn, "testing"),
+        "pkgs": get_pkgs(conn, config.suite),
     }
     index = Template(
         filename=abspath(join(dirname(__file__), "templates", "index.html"))
