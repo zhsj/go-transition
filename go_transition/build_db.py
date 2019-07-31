@@ -115,7 +115,8 @@ def download():
         )
     subprocess.run(
         [
-            "apt",
+            "apt-get",
+            "-qq",
             "-o",
             "Dir=" + abspath(join(dirname(__file__), "..", "apt")),
             "-o" "Dir::Etc::trustedparts=/etc/apt/trusted.gpg.d/",
