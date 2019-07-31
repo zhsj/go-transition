@@ -67,7 +67,11 @@ def main(conn):
     index = Template(
         filename=abspath(join(dirname(__file__), "templates", "index.html"))
     )
-    with open(abspath(join(dirname(__file__), "..", "static", "index.html")), "w") as f:
+    with open(
+        abspath(join(dirname(__file__), "..", "static", "index.html")),
+        "w",
+        encoding="utf-8",
+    ) as f:
         f.write(index.render(**args))
 
 

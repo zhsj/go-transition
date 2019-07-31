@@ -39,7 +39,7 @@ def create_table(c):
 
 def walk_src_packages(fn, suite, c):
     cur = c.cursor()
-    with open(fn) as f:
+    with open(fn, encoding="utf-8") as f:
         for pkg in deb822.Sources.iter_paragraphs(f):
             if not (
                 "Build-Depends" in pkg and "dh-golang" in pkg["Build-Depends"]
@@ -68,7 +68,7 @@ def walk_src_packages(fn, suite, c):
 
 def walk_bin_packages(fn, suite, arch, c):
     cur = c.cursor()
-    with open(fn) as f:
+    with open(fn, encoding="utf-8") as f:
         for pkg in BuiltUsing.iter_paragraphs(f):
             if not ("Built-Using" in pkg and "golang-" in pkg["Built-Using"]):
                 continue
@@ -106,6 +106,7 @@ def download():
             )
         ),
         "w",
+        encoding="utf-8",
     ) as f:
         f.write(
             Template(filename=abspath(join(dirname(__file__), "sources.tmpl"))).render(
