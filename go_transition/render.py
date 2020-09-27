@@ -36,13 +36,14 @@ def get_pkgs(conn, suite):
     for src_row, row in itertools.groupby(
         c.execute(
             """
-    SELECT src.src_pkg, src.version, pkg.bin_pkg, pkg.version,
-           pkg.arch, pkg.built_using_version
-    FROM src JOIN pkg
-    WHERE src.src_pkg = pkg.built_using
-          AND src.suite = pkg.suite
-          AND src.suite = '%s'
-    """
+            SELECT src.src_pkg, src.version, pkg.bin_pkg, pkg.version,
+                   pkg.arch, pkg.built_using_version
+            FROM src JOIN pkg
+            WHERE src.src_pkg = pkg.built_using
+                  AND src.suite = pkg.suite
+                  AND src.suite = '%s'
+            ORDER BY src.src_pkg, src.version, pkg.bin_pkg, pkg.version
+            """
             % suite
         ),
         lambda x: (x[0], x[1]),

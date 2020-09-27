@@ -3,6 +3,7 @@ from mako.template import Template
 from os.path import abspath, join, dirname
 from go_transition import config
 import subprocess
+import re
 
 
 class BuiltUsing(deb822.Packages):
@@ -30,6 +31,7 @@ def create_table(c):
      src_pkg text
     ,suite   text
     ,version text
+    ,UNIQUE(src_pkg, suite) ON CONFLICT IGNORE
     )
     """
     )
@@ -38,9 +40,15 @@ def create_table(c):
 
 
 def walk_src_packages(fn, suite, c):
+    default_go_minor = 0
     cur = c.cursor()
     with open(fn, encoding="utf-8") as f:
         for pkg in deb822.Sources.iter_paragraphs(f):
+            if pkg["Package"] == "golang-defaults":
+                match = re.match("(\d+):(\d+)\.(\d+)", pkg["Version"])
+                if match:
+                    default_go_minor = int(match.group(3))
+                continue
             if not (
                 "Build-Depends" in pkg and "dh-golang" in pkg["Build-Depends"]
             ) and not (pkg["Package"].startswith("golang-1.")):
@@ -50,17 +58,27 @@ def walk_src_packages(fn, suite, c):
             row = (pkg["Package"], suite, pkg["Version"])
             cur.execute(
                 """
-            INSERT INTO src (src_pkg, suite, version) VALUES (?,?,?)
-            """,
+                INSERT INTO src (src_pkg, suite, version) VALUES (?,?,?)
+                """,
                 row,
             )
         # dummy golang
-        rows = [("golang-1." + str(i), suite, "Bad") for i in range(6, 11)]
+        rows = [
+            ("golang-1." + str(i), suite, "Bad") for i in range(6, default_go_minor)
+        ]
+        rows.append(("golang-pseudo", suite, "Bad"))
         cur.executemany(
             """
             INSERT INTO src (src_pkg, suite, version) VALUES (?,?,?)
             """,
             rows,
+        )
+        cur.execute(
+            """
+           UPDATE src SET version = (SELECT version FROM src WHERE src_pkg = ?)
+           WHERE src_pkg = "golang-pseudo"
+           """,
+            ("golang-1." + str(default_go_minor),),
         )
     c.commit()
     cur.close()
@@ -73,20 +91,33 @@ def walk_bin_packages(fn, suite, arch, c):
             if not ("Built-Using" in pkg and "golang-" in pkg["Built-Using"]):
                 continue
             for r in pkg.relations["built-using"]:
-                row = (
-                    pkg["Package"],
-                    arch,
-                    suite,
-                    pkg["Version"],
-                    r[0]["name"],
-                    r[0]["version"][1],
-                )
-                cur.execute(
+                rows = [
+                    (
+                        pkg["Package"],
+                        arch,
+                        suite,
+                        pkg["Version"],
+                        r[0]["name"],
+                        r[0]["version"][1],
+                    )
+                ]
+                if r[0]["name"].startswith("golang-1."):
+                    rows.append(
+                        (
+                            pkg["Package"],
+                            arch,
+                            suite,
+                            pkg["Version"],
+                            "golang-pseudo",
+                            r[0]["version"][1],
+                        )
+                    )
+                cur.executemany(
                     """
                 INSERT INTO pkg (bin_pkg, arch, suite, version, built_using, built_using_version)
                 VALUES (?, ?, ?, ?, ?, ?)
                 """,
-                    row,
+                    rows,
                 )
     c.commit()
     cur.close()
