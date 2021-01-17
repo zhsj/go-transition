@@ -49,7 +49,7 @@ var (
   </tr>
 {{ range .Items }}
   <tr>
-    <td>{{ .Source }}</td>
+    <td><a href="https://tracker.debian.org/pkg/{{ .Source }}">{{ .Source }}</a></td>
     <td>{{ .Package }}</td>
     <td>{{ .Arch }}</td>
     <td>{{ .BullseyeVer }}</td>
