@@ -20,7 +20,7 @@ select r1.source as source, r1.package as package, r1.arch as arch, r1.version a
   )
   where s1.extra_source_only is null and (
     s1.build_depends like '%golang%' or s1.build_depends_indep like '%golang%' or s1.build_depends_arch like '%golang%'
-  )  and s1.release ='bookworm'
+  )  and s1.release ='trixie'
 ) as r1 join
 (
   select p2.package as package, p2.source as source, p2.version as version, p2.architecture as arch
